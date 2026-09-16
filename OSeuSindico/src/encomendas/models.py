@@ -6,4 +6,4 @@ class Encomendas(models.Model):
     codigo = models.CharField(max_length=50, blank=False)
     morador = models.ForeignKey(Morador, on_delete=models.DO_NOTHING)
     data_chegada = models.DateTimeField(auto_now_add=True)
-    data_retirada = models.DateTimeField(blank=True)
+    data_retirada = models.DateTimeField(blank=True, null=True)
