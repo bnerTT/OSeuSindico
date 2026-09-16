@@ -1,5 +1,3 @@
-# Create your tests here.
-
 from django.test import TestCase
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
@@ -8,10 +6,13 @@ from rest_framework import status
 from accounts.models import Morador
 from .models import Veiculos
 
-# Create your tests here.
-class MoradorAPITests(APITestCase):
+class VeiculosAPITests(APITestCase):
     def setUp(self):
         self.url = '/veiculos/'
+        
+        # 1. Cria um usuário Staff (Porteiro/Síndico) e força o login
+        self.usuario_staff = User.objects.create_user(username="admin_veiculos", password="123", is_staff=True)
+        self.client.force_authenticate(user=self.usuario_staff)
         
         self.morador_dono = Morador.objects.create(
             user=User.objects.create_user(username="dono_carro", password="123"),
@@ -32,16 +33,12 @@ class MoradorAPITests(APITestCase):
         self.assertEqual(resposta.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Veiculos.objects.count(), 1)
         
-        
     def test_listar_veiculos(self):
         resposta = self.client.get(self.url)
-        
         print("Resposta get sem post:", resposta.json())
         
-        resposta = self.client.post(self.url, self.dados_novo_veiculo, format="json")
-        
+        self.client.post(self.url, self.dados_novo_veiculo, format="json")
         resposta = self.client.get(self.url)
-        
         print("Resposta get com post:", resposta.json())
         
         self.assertEqual(resposta.status_code, status.HTTP_200_OK)
@@ -68,7 +65,6 @@ class MoradorAPITests(APITestCase):
         resposta = self.client.put(url_detalhe, dados_atualizados, format="json")
         
         self.assertEqual(resposta.status_code, status.HTTP_200_OK)
-        
         veiculo.refresh_from_db()
         self.assertEqual(veiculo.cor, "Preto")
 

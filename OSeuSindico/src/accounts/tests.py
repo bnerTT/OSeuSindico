@@ -1,12 +1,17 @@
 from django.test import TestCase
+from django.contrib.auth.models import User
 from .models import Morador
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-# Create your tests here.
 class MoradorAPITests(APITestCase):
     def setUp(self):
         self.url = '/moradores/'
+        
+        # 1. Cria um usuário Staff para ter permissão de criar/listar moradores
+        self.usuario_staff = User.objects.create_user(username="admin_moradores", password="123", is_staff=True)
+        self.client.force_authenticate(user=self.usuario_staff)
+        
         self.dados_novo_morador = {
             "username": "pedro_teste",
             "password": "senha_segura_123",
@@ -17,8 +22,6 @@ class MoradorAPITests(APITestCase):
         
     def test_criar_morador_com_sucesso(self):
         resposta = self.client.post(self.url, self.dados_novo_morador, format='json')
-        
-        
         print("Resposta post:", resposta.json())
         
         self.assertEqual(resposta.status_code, status.HTTP_201_CREATED)
@@ -29,18 +32,14 @@ class MoradorAPITests(APITestCase):
         print("Resposta get sem post:", resposta.json())
         
         self.client.post(self.url, self.dados_novo_morador, format='json')
-        
         resposta = self.client.get(self.url)
-        
-        
         print("Resposta get com post:", resposta.json())
                 
         self.assertEqual(resposta.status_code, status.HTTP_200_OK)
-        
-        self.assertEqual(len(resposta.json()),1)
+        self.assertEqual(len(resposta.json()), 1)
         
     def test_deletar_morador(self):
-        resposta = self.client.post(self.url, self.dados_novo_morador, format='json')
+        self.client.post(self.url, self.dados_novo_morador, format='json')
         morador = Morador.objects.first()
         url_detalhe = f'/moradores/{morador.id}/'
         
@@ -62,6 +61,5 @@ class MoradorAPITests(APITestCase):
         }
         
         resposta = self.client.put(url_detalhe, dados_atualizados, format="json")
-        
         self.assertEqual(resposta.status_code, status.HTTP_200_OK)
         self.assertEqual(resposta.data['dados']['apartamento'], "B302")

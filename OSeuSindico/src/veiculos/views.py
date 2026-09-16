@@ -3,14 +3,15 @@ from django.shortcuts import render
 from .models import Veiculos
 from .serializers import VeiculoSerializer
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import status
 
 # Create your views here.
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated, IsAdminUser])
 def veiculos_api(request):
-    
     if request.method == 'GET':
         veiculos = Veiculos.objects.all()
         serializer = VeiculoSerializer(veiculos, many=True)
@@ -32,6 +33,7 @@ def veiculos_api(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, IsAdminUser])
 def veiculos_api_detalhe(request, pk):
     try:
         veiculo = Veiculos.objects.get(pk=pk)
