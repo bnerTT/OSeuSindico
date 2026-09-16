@@ -1,0 +1,40 @@
+# Arquivos de ambiente e credenciais
+.env
+.env.local
+.env.*
+
+# Caches do Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Pastas de ambientes virtuais (caso o Poetry crie dentro do projeto)
+.venv/
+env/
+venv/
+ENV/
+
+# Arquivos locais e de banco de dados do Django
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+*.log
+
+# Arquivos gerados por testes e cobertura
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Ferramentas de desenvolvimento e editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Builds e pacotes
+dist/
+build/
+*.egg-info/
