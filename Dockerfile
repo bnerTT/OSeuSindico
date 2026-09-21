@@ -21,7 +21,7 @@ RUN poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi --no-root
 
 # Copia o restante do código fonte do projeto (pasta src)
-COPY pyproject.toml poetry.lock* /app
+COPY OSeuSindico/src /app/src
 
 # Move o contexto para onde está o manage.py
 WORKDIR /app/src
