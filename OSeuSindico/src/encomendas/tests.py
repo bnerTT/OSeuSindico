@@ -10,11 +10,9 @@ class EncomendasAPITests(APITestCase):
     def setUp(self):
         self.url = '/encomendas/'
         
-        # 1. Cria um usuário Staff (Portaria) e força o login com ele!
         self.usuario_staff = User.objects.create_user(username="portaria", password="123", is_staff=True)
         self.client.force_authenticate(user=self.usuario_staff)
         
-        # 2. Cria o usuário do Morador (que vai apenas receber a encomenda)
         self.usuario_morador = User.objects.create_user(username="morador_encomenda", password="123")
         self.morador = Morador.objects.create(
             user=self.usuario_morador,
@@ -23,7 +21,6 @@ class EncomendasAPITests(APITestCase):
             apartamento="205A"
         )
         
-        # 3. Prepara os dados (A portaria registra que chegou para o morador.id)
         self.dados_nova_encomenda = {
             "codigo": "BR123456789BR",
             "morador": self.morador.id
