@@ -65,5 +65,43 @@ jobs:
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY --all-tags
           
-      # A partir daqui, você pode adicionar o gatilho para reiniciar o seu servidor EC2 
+      - name: Deploy na Instância EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: o-seu-sindico-api
+          AWS_REGION: ${{ env.AWS_REGION }}
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: ECR_REGISTRY,ECR_REPOSITORY,AWS_REGION,DJANGO_SECRET_KEY,DB_NAME,DB_USER,DB_PASSWORD,DB_HOST
+          script: |
+            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
+            
+            # Para e remove a versão antiga (se existir)
+            docker stop oseusindico-api || true
+            docker rm oseusindico-api || true
+            
+            # Roda a versão nova com as variáveis de ambiente
+            docker run -d \
+              --name oseusindico-api \
+              -p 80:8000 \
+              --restart unless-stopped \
+              -e DJANGO_SECRET_KEY="$DJANGO_SECRET_KEY" \
+              -e DEBUG="False" \
+              -e ALLOWED_HOSTS="${{ secrets.EC2_HOST }},localhost" \
+              -e DB_NAME="$DB_NAME" \
+              -e DB_USER="$DB_USER" \
+              -e DB_PASSWORD="$DB_PASSWORD" \
+              -e DB_HOST="$DB_HOST" \
+              $ECR_REGISTRY/$ECR_REPOSITORY:latest 
       # ou atualizar o seu serviço no AWS ECS usando a nova imagem do ECR.
+
+
