@@ -36,7 +36,7 @@ class MoradorAPITests(APITestCase):
         print("Resposta get com post:", resposta.json())
                 
         self.assertEqual(resposta.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(resposta.json()), 1)
+        self.assertEqual(len(resposta.json()['results']), 1)
         
     def test_deletar_morador(self):
         self.client.post(self.url, self.dados_novo_morador, format='json')

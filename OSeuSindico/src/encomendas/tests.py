@@ -35,7 +35,7 @@ class EncomendasAPITests(APITestCase):
         self.client.post(self.url, self.dados_nova_encomenda, format="json")
         resposta = self.client.get(self.url)
         self.assertEqual(resposta.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(resposta.json()), 1)
+        self.assertEqual(len(resposta.json()['results']), 1)
 
     def test_detalhar_encomenda(self):
         self.client.post(self.url, self.dados_nova_encomenda, format="json")

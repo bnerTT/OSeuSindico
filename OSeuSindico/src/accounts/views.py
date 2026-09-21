@@ -3,6 +3,7 @@ from .models import Morador
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.pagination import PageNumberPagination
 from .serializers import MoradorSerializer
 
 # Create your views here.
@@ -26,9 +27,23 @@ def moradores_api(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'GET':
-        moradores = Morador.objects.all()
-        serializer = MoradorSerializer(moradores, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        moradores = Morador.objects.all().order_by('id')
+        
+        cpf_buscado = request.GET.get('cpf', None)
+        apartamento_buscado = request.GET.get('apartamento', None)
+        
+        if cpf_buscado:
+            moradores = moradores.filter(cpf=cpf_buscado)
+        if apartamento_buscado:
+            moradores = moradores.filter(apartament__iexact=apartamento_buscado)
+            
+        paginator = PageNumberPagination()
+        paginator.page_size = 5
+        resultado_paginado = paginator.paginate_queryset(moradores, request)
+        
+        serializer = MoradorSerializer(resultado_paginado, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 @api_view(['DELETE', 'PUT'])
