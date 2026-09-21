@@ -30,6 +30,9 @@ jobs:
           poetry install
 
       - name: Executar Testes do Django
+        env:
+          DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DB_NAME: sqlite3
         run: |
           cd OSeuSindico/src
           python manage.py test
