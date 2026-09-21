@@ -67,7 +67,7 @@ jobs:
               -p 80:8000 \
               --restart unless-stopped \
               -e DJANGO_SECRET_KEY="$DJANGO_SECRET_KEY" \
-              -e DEBUG="False" \
+              -e DEBUG="True" \
               -e ALLOWED_HOSTS="${{ secrets.EC2_HOST }},localhost" \
               -e DB_NAME="$DB_NAME" \
               -e DB_USER="$DB_USER" \
