@@ -43,6 +43,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: o-seu-sindico-api
           AWS_REGION: ${{ env.AWS_REGION }}
+          IMAGE_TAG: ${{ github.sha }}
           DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_USER: ${{ secrets.DB_USER }}
@@ -54,10 +55,10 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: ECR_REGISTRY,ECR_REPOSITORY,AWS_REGION,DJANGO_SECRET_KEY,DB_NAME,DB_USER,DB_PASSWORD,DB_HOST,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
+          envs: ECR_REGISTRY,ECR_REPOSITORY,AWS_REGION,IMAGE_TAG,DJANGO_SECRET_KEY,DB_NAME,DB_USER,DB_PASSWORD,DB_HOST,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
           script: |
             aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
-            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
+            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
             
             docker stop oseusindico-api || true
             docker rm oseusindico-api || true
@@ -67,10 +68,10 @@ jobs:
               -p 80:8000 \
               --restart unless-stopped \
               -e DJANGO_SECRET_KEY="$DJANGO_SECRET_KEY" \
-              -e DEBUG="False" \
+              -e DEBUG="True" \
               -e ALLOWED_HOSTS="*" \
               -e DB_NAME="$DB_NAME" \
               -e DB_USER="$DB_USER" \
               -e DB_PASSWORD="$DB_PASSWORD" \
               -e DB_HOST="$DB_HOST" \
-              $ECR_REGISTRY/$ECR_REPOSITORY:latest
+              $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
