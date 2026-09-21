@@ -18,7 +18,7 @@ COPY OSeuSindico/pyproject.toml OSeuSindico/poetry.lock* /app/
 
 # Instala as dependências diretamente no sistema do contêiner (sem virtualenv)
 RUN poetry config virtualenvs.create false \
-    && poetry install --without dev --no-interaction --no-ansi
+    && poetry install --no-interaction --no-ansi
 
 # Copia o restante do código fonte do projeto (pasta src)
 COPY OSeuSindico/src /app/src
