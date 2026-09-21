@@ -1,0 +1,24 @@
+[project]
+name = "oseusindico"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Abner",email = "abnergama2512@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "django (>=6.1.1,<7.0.0)",
+    "djangorestframework (>=3.18.1,<4.0.0)",
+    "djangorestframework-simplejwt (>=5.5.1,<6.0.0)",
+    "drf-spectacular (>=0.30.0,<0.31.0)",
+    "django-cors-headers (>=4.9.0,<5.0.0)",
+    "gunicorn (>=26.2.0,<27.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "oseusindico", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
