@@ -26,11 +26,12 @@ jobs:
         run: |
           pip install poetry
           poetry config virtualenvs.create false
+          cd OSeuSindico
           poetry install
 
       - name: Executar Testes do Django
         run: |
-          cd src
+          cd OSeuSindico/src
           python manage.py test
 
   deploy:
@@ -58,6 +59,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
+          cd OSeuSindico
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY --all-tags
           
