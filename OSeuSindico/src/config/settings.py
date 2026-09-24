@@ -93,6 +93,13 @@ else:
             'PORT': config('DB_PORT', default='5432'),
         }
     }
+    
+    # Ativa o SSL apenas se não estiver rodando localmente
+    if config('DB_HOST', default='127.0.0.1') != '127.0.0.1':
+        DATABASES['default']['OPTIONS'] = {
+            'sslmode': 'verify-full',
+            'sslrootcert': '/app/global-bundle.pem',
+        }
 
 
 
