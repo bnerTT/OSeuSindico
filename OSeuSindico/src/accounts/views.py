@@ -2,8 +2,9 @@ from django.shortcuts import render
 from .models import Morador
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 from .serializers import MoradorSerializer
 
 # Create your views here.
@@ -79,3 +80,19 @@ def id_moradores_api(request, pk):
         
             
         
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def me_api(request):
+    """
+    Retorna os dados do morador vinculado ao usuário autenticado pelo Token (Bearer).
+    """
+    try:
+        morador = Morador.objects.get(user=request.user)
+    except Morador.DoesNotExist:
+        return Response(
+            {"erro": "Perfil de morador não encontrado para este usuário."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    serializer = MoradorSerializer(morador)
+    return Response(serializer.data, status=status.HTTP_200_OK)
