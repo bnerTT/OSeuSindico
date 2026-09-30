@@ -84,21 +84,32 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: ECR_REGISTRY,ECR_REPOSITORY,AWS_REGION,DJANGO_SECRET_KEY,DB_NAME,DB_USER,DB_PASSWORD,DB_HOST,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY
           script: |
-            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
-            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
-            
+            echo "=== Liberando espaço em disco na EC2 ==="
             docker stop oseusindico-api || true
             docker rm oseusindico-api || true
-            
+            docker system prune -af --volumes || true
+            sudo journalctl --vacuum-time=1d || true
+            sudo apt-get clean || true
+            df -h
+
+            echo "=== Login no ECR e Pull da nova imagem ==="
+            aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+            echo "=== Iniciando container da API ==="
             docker run -d \
               --name oseusindico-api \
               -p 80:8000 \
               --restart unless-stopped \
               -e DJANGO_SECRET_KEY="$DJANGO_SECRET_KEY" \
               -e DEBUG="False" \
-              -e ALLOWED_HOSTS="${{ secrets.EC2_HOST }},localhost" \
+              -e ALLOWED_HOSTS="*" \
               -e DB_NAME="$DB_NAME" \
               -e DB_USER="$DB_USER" \
               -e DB_PASSWORD="$DB_PASSWORD" \
               -e DB_HOST="$DB_HOST" \
               $ECR_REGISTRY/$ECR_REPOSITORY:latest
+            
+            echo "=== Verificando status do container ==="
+            sleep 3
+            docker ps
