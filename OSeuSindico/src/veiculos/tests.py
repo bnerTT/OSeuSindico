@@ -116,3 +116,40 @@ class VeiculosAPITests(APITestCase):
         resultados_morador = resposta_morador.json()['results']
         self.assertEqual(len(resultados_morador), 1)
         self.assertEqual(resultados_morador[0]['placa'], 'QSX-1876')
+
+    def test_morador_listar_apenas_seus_veiculos(self):
+        # Cadastra o veículo do morador dono
+        self.client.post(self.url, self.dados_novo_veiculo, format="json")
+
+        # Cadastra outro morador com outro veículo
+        morador_outro = Morador.objects.create(
+            user=User.objects.create_user(username="outro_morador", password="123"),
+            cpf="77766655544",
+            data_nascimento="1990-05-05",
+            apartamento="303C"
+        )
+        self.client.post(self.url, {
+            "morador": morador_outro.id,
+            "placa": "XYZ-9999",
+            "modelo": "Gol",
+            "cor": "Branco",
+        }, format="json")
+
+        # Agora autentica como morador comum (sem staff)
+        self.client.force_authenticate(user=self.morador_dono.user)
+
+        resposta = self.client.get(self.url)
+        self.assertEqual(resposta.status_code, status.HTTP_200_OK)
+        resultados = resposta.json()['results']
+        # Deve retornar apenas o veículo pertencente a este morador
+        self.assertEqual(len(resultados), 1)
+        self.assertEqual(resultados[0]['placa'], "QSX-1876")
+
+        # Morador comum não pode cadastrar veículos via POST
+        resposta_post = self.client.post(self.url, {
+            "morador": self.morador_dono.id,
+            "placa": "ABC-0000",
+            "modelo": "Onix",
+            "cor": "Cinza",
+        }, format="json")
+        self.assertEqual(resposta_post.status_code, status.HTTP_403_FORBIDDEN)

@@ -4,31 +4,38 @@ from .models import Veiculos
 from .serializers import VeiculoSerializer
 
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from .serializers import VeiculoSerializer
 
 # Create your views here.
 @api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated, IsAdminUser])
+@permission_classes([IsAuthenticated])
 def veiculos_api(request):
     if request.method == 'GET':
-        veiculos = Veiculos.objects.all().order_by('id')
-        
-        placa_buscada = request.GET.get('placa', None)
-        morador_id = request.GET.get('morador')
-        apartamento_buscado = request.GET.get('apartamento', None)
-        
-        if placa_buscada:
-            veiculos = veiculos.filter(placa__icontains=placa_buscada)
+        if request.user.is_staff:
+            veiculos = Veiculos.objects.all().order_by('id')
             
-        if morador_id:
-            veiculos = veiculos.filter(morador_id=morador_id)
+            placa_buscada = request.GET.get('placa', None)
+            morador_id = request.GET.get('morador')
+            apartamento_buscado = request.GET.get('apartamento', None)
             
-        if apartamento_buscado:
-            veiculos = veiculos.filter(morador__apartamento__iexact=apartamento_buscado)
+            if placa_buscada:
+                veiculos = veiculos.filter(placa__icontains=placa_buscada)
+                
+            if morador_id:
+                veiculos = veiculos.filter(morador_id=morador_id)
+                
+            if apartamento_buscado:
+                veiculos = veiculos.filter(morador__apartamento__iexact=apartamento_buscado)
+        else:
+            # Morador comum: visualiza apenas os veículos vinculados a ele
+            veiculos = Veiculos.objects.filter(morador__user=request.user).order_by('id')
+            
+            placa_buscada = request.GET.get('placa', None)
+            if placa_buscada:
+                veiculos = veiculos.filter(placa__icontains=placa_buscada)
             
         paginator = PageNumberPagination()
         paginator.page_size = 5
@@ -40,6 +47,11 @@ def veiculos_api(request):
         return paginator.get_paginated_response(serializer.data)
         
     elif request.method == 'POST':
+        if not request.user.is_staff:
+            return Response({
+                "Erro": "Apenas portaria/administração pode cadastrar veículos."
+            }, status=status.HTTP_403_FORBIDDEN)
+
         serializer = VeiculoSerializer(data=request.data)
         
         if serializer.is_valid():
@@ -52,10 +64,13 @@ def veiculos_api(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['GET', 'PUT', 'DELETE'])
-@permission_classes([IsAuthenticated, IsAdminUser])
+@permission_classes([IsAuthenticated])
 def veiculos_api_detalhe(request, pk):
     try:
-        veiculo = Veiculos.objects.get(pk=pk)
+        if request.user.is_staff:
+            veiculo = Veiculos.objects.get(pk=pk)
+        else:
+            veiculo = Veiculos.objects.get(pk=pk, morador__user=request.user)
     except Veiculos.DoesNotExist:
         return Response({
             "Erro":"Veículo não encontrado"
@@ -66,6 +81,11 @@ def veiculos_api_detalhe(request, pk):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     elif request.method == "PUT":
+        if not request.user.is_staff:
+            return Response({
+                "Erro": "Apenas administração pode editar veículos."
+            }, status=status.HTTP_403_FORBIDDEN)
+
         serializer = VeiculoSerializer(veiculo, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -75,5 +95,10 @@ def veiculos_api_detalhe(request, pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     elif request.method == "DELETE":
+        if not request.user.is_staff:
+            return Response({
+                "Erro": "Apenas administração pode excluir veículos."
+            }, status=status.HTTP_403_FORBIDDEN)
+
         veiculo.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
