@@ -29,5 +29,7 @@ WORKDIR /app/src
 # Expõe a porta que o Gunicorn vai utilizar
 EXPOSE 8000
 
+ADD https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem /app/global-bundle.pem
+
 # Comando para iniciar o servidor em produção (Assumindo que sua pasta principal se chama config)
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "config.wsgi:application"]
