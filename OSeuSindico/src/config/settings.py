@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'accounts',
     'encomendas',
     'veiculos',
+    'areas',
     
     'rest_framework',
     'drf_spectacular',
@@ -95,7 +96,8 @@ else:
     }
     
     # Ativa o SSL apenas se não estiver rodando localmente
-    if config('DB_HOST', default='127.0.0.1') != '127.0.0.1':
+    db_host = config('DB_HOST', default='127.0.0.1')
+    if db_host not in ['127.0.0.1', 'localhost']:
         DATABASES['default']['OPTIONS'] = {
             'sslmode': 'verify-full',
             'sslrootcert': '/app/global-bundle.pem',
