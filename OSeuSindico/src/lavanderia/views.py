@@ -1,13 +1,13 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated, BasePermission, SAFE_METHODS
-from .models import Areas, ReservaArea
-from .serializers import AreaSerializer, ReservaAreaSerializer
+from .models import Maquina, ReservaMaquina
+from .serializers import MaquinaSerializer, ReservaMaquinaSerializer
 
 class IsAdminOrReadOnly(BasePermission):
     """
     Permite leitura (GET, HEAD, OPTIONS) para usuários autenticados.
     Permite escrita (POST, PUT, PATCH, DELETE) apenas para administradores (staff).
-    Morador não tem permissão para cadastrar/editar/excluir áreas comuns, apenas reservar.
+    Morador não tem permissão para cadastrar/editar/excluir máquinas, apenas reservar.
     """
     def has_permission(self, request, view):
         if not (request.user and request.user.is_authenticated):
@@ -16,29 +16,27 @@ class IsAdminOrReadOnly(BasePermission):
             return True
         return bool(request.user and request.user.is_staff)
 
-class AreasViewSet(viewsets.ModelViewSet):
-    queryset = Areas.objects.all().order_by('nome')
-    serializer_class = AreaSerializer
+class MaquinaViewSet(viewsets.ModelViewSet):
+    queryset = Maquina.objects.all().order_by('numero')
+    serializer_class = MaquinaSerializer
     permission_classes = [IsAdminOrReadOnly]
 
-class ReservaAreaViewSet(viewsets.ModelViewSet):
-    serializer_class = ReservaAreaSerializer
+class ReservaMaquinaViewSet(viewsets.ModelViewSet):
+    queryset = ReservaMaquina.objects.all().order_by('horario_inicio')
+    serializer_class = ReservaMaquinaSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = ReservaArea.objects.all()
-        area_id = self.request.query_params.get('area')
+        queryset = ReservaMaquina.objects.all()
+        maquina_id = self.request.query_params.get('maquina')
         morador_id = self.request.query_params.get('morador')
-        status_param = self.request.query_params.get('status')
         data_param = self.request.query_params.get('data')
 
-        if area_id:
-            queryset = queryset.filter(area_id=area_id)
+        if maquina_id:
+            queryset = queryset.filter(maquina_id=maquina_id)
         if morador_id:
             queryset = queryset.filter(morador_id=morador_id)
-        if status_param:
-            queryset = queryset.filter(status=status_param)
         if data_param:
-            queryset = queryset.filter(data_inicio__date=data_param)
+            queryset = queryset.filter(horario_inicio__date=data_param)
 
-        return queryset.order_by('data_inicio')
+        return queryset.order_by('horario_inicio')

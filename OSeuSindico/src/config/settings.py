@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'encomendas',
     'veiculos',
     'areas',
+    'lavanderia',
     
     'rest_framework',
     'drf_spectacular',
