@@ -12,6 +12,10 @@ urlpatterns = [
     path('', include('encomendas.urls')),
     path('', include('areas.urls')),
     path('', include('lavanderia.urls')),
+
+    # Suporte adicional com prefixo api/ para endpoints REST
+    path('api/', include('areas.urls')),
+    path('api/', include('lavanderia.urls')),
     
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

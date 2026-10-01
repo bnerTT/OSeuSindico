@@ -31,5 +31,5 @@ EXPOSE 8000
 
 ADD https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem /app/global-bundle.pem
 
-# Comando para iniciar o servidor em produção (Assumindo que sua pasta principal se chama config)
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "config.wsgi:application"]
+# Executa migrações pendentes no banco de dados e inicia o Gunicorn em produção
+CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn --bind 0.0.0.0:8000 --workers 3 config.wsgi:application"]

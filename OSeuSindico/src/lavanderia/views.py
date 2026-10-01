@@ -6,15 +6,21 @@ from .serializers import MaquinaSerializer, ReservaMaquinaSerializer
 class IsAdminOrReadOnly(BasePermission):
     """
     Permite leitura (GET, HEAD, OPTIONS) para usuários autenticados.
-    Permite escrita (POST, PUT, PATCH, DELETE) apenas para administradores (staff).
-    Morador não tem permissão para cadastrar/editar/excluir máquinas, apenas reservar.
+    Permite escrita (POST, PUT, PATCH, DELETE) para administradores.
+    Um usuário é considerado administrador se:
+    1. For staff (is_staff=True) ou superuser (is_superuser=True), OU
+    2. Não possuir perfil de Morador vinculado (usuário de gestão/portaria/admin).
+    Moradores comuns com perfil de morador vinculado são restritos exclusivamente à leitura de máquinas e realização de reservas.
     """
     def has_permission(self, request, view):
         if not (request.user and request.user.is_authenticated):
             return False
         if request.method in SAFE_METHODS:
             return True
-        return bool(request.user and request.user.is_staff)
+        if request.user.is_staff or request.user.is_superuser:
+            return True
+        from accounts.models import Morador
+        return not Morador.objects.filter(user=request.user).exists()
 
 class MaquinaViewSet(viewsets.ModelViewSet):
     queryset = Maquina.objects.all().order_by('numero')

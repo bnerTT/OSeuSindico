@@ -110,6 +110,9 @@ jobs:
               -e DB_HOST="$DB_HOST" \
               $ECR_REGISTRY/$ECR_REPOSITORY:latest
             
+            echo "=== Executando Migrations no Banco de Dados ==="
+            sleep 4
+            docker exec oseusindico-api python manage.py migrate --noinput || true
+
             echo "=== Verificando status do container ==="
-            sleep 3
             docker ps
