@@ -294,8 +294,3 @@ npm run build
 
 ---
 
-## 👨‍💻 Autor & Manutenção
-
-Desenvolvido por **Abner Gama**  
-Contato: [abnergama2512@gmail.com](mailto:abnergama2512@gmail.com)  
-Repositório: [github.com/bnerTT/OSeuSindico](https://github.com/bnerTT/OSeuSindico)
