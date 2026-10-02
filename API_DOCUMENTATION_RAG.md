@@ -23,7 +23,7 @@ O sistema opera com dois níveis operacionais de acesso:
 
 ### 1.3 Convenções Gerais de Comunicação
 - **URL Base Local:** `http://localhost:8000`
-- **Host de Produção/Deploy:** `http://54.89.94.139` (Porta 8000)
+- **Host de Produção/Deploy:** `https://api.seusindico.com.br` (ou definido via variável de ambiente da API na AWS/EC2)
 - **Headers Padrão:**
   - `Content-Type: application/json`
   - `Accept: application/json`

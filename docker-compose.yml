@@ -10,14 +10,15 @@ services:
     depends_on:
       - db
     environment:
-      # Variáveis lidas pelo decouple no seu settings.py
-      - DB_NAME=postgres
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
+      # Variáveis lidas pelo decouple no seu settings.py (definidas via .env ou ambiente)
+      - DB_NAME=${DB_NAME:-postgres}
+      - DB_USER=${DB_USER:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres}
       - DB_HOST=db
       - DB_PORT=5432
-      - SECRET_KEY=django-insecure-chave-de-producao-aqui
-      - DEBUG=False
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-django-insecure-local-dev-key-change-in-production}
+      - DEBUG=${DEBUG:-True}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1,web}
 
   db:
     image: postgres:15-alpine
@@ -25,9 +26,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
     environment:
       # Variáveis exigidas pela imagem oficial do PostgreSQL
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=${DB_NAME:-postgres}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres}
 
 volumes:
   postgres_data:

@@ -14,14 +14,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends libpq-dev gcc \
     && rm -rf /var/lib/apt/lists/*
 
 # Copia apenas os arquivos de dependência primeiro (para usar o cache do Docker)
-COPY OSeuSindico/pyproject.toml OSeuSindico/poetry.lock* /app/
+COPY backend/pyproject.toml backend/poetry.lock* /app/
 
 # Instala as dependências diretamente no sistema do contêiner (sem virtualenv)
 RUN poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi --no-root
 
 # Copia o restante do código fonte do projeto (pasta src)
-COPY OSeuSindico/src /app/src
+COPY backend/src /app/src
 
 # Move o contexto para onde está o manage.py
 WORKDIR /app/src

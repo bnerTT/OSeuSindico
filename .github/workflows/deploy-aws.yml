@@ -26,7 +26,7 @@ jobs:
         run: |
           pip install poetry
           poetry config virtualenvs.create false
-          cd OSeuSindico
+          cd backend
           poetry install
 
       - name: Executar Testes do Django
@@ -34,7 +34,7 @@ jobs:
           DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
           DB_NAME: sqlite3
         run: |
-          cd OSeuSindico/src
+          cd backend/src
           python manage.py test
 
   deploy:

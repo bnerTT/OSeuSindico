@@ -38,3 +38,15 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+
+# Frontend (Node / Next.js)
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.vercel/
+
+# Arquivos de Agentes e Memória de IA
+.claude-memory/
+AGENTS.md
+**/AGENTS.md

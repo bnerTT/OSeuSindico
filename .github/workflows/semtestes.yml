@@ -68,7 +68,7 @@ jobs:
               -p 80:8000 \
               --restart unless-stopped \
               -e DJANGO_SECRET_KEY="$DJANGO_SECRET_KEY" \
-              -e DEBUG="True" \
+              -e DEBUG="False" \
               -e ALLOWED_HOSTS="*" \
               -e DB_NAME="$DB_NAME" \
               -e DB_USER="$DB_USER" \
