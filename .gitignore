@@ -27,10 +27,14 @@ staticfiles/
 .coverage
 htmlcov/
 .tox/
+test-results/
+playwright-report/
+blob-report/
 
 # Ferramentas de desenvolvimento e editores
 .vscode/
 .idea/
+*.swp
 *.swp
 *.swo
 
@@ -50,3 +54,6 @@ out/
 .claude-memory/
 AGENTS.md
 **/AGENTS.md
+CLAUDE.md
+**/CLAUDE.md
+.prompts
